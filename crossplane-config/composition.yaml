@@ -22,6 +22,9 @@ spec:
             cidrBlock: 192.168.0.0/16
             enableDnsSupport: true
             enableDnsHostNames: true
+      patches:
+        - fromFieldPath: "spec.parameters.region"
+          toFieldPath: "spec.forProvider.region"
     - name: subnet-a
       base:
         apiVersion: ec2.aws.crossplane.io/v1beta1
@@ -36,6 +39,21 @@ spec:
             vpcIdSelector:
               matchControllerRef: true
             availabilityZone: eu-west-1a
+      patches:
+        - fromFieldPath: "spec.parameters.region"
+          toFieldPath: "metadata.labels[zone]"
+          transforms:
+            - type: string
+              string:
+                fmt: "%sa"
+        - fromFieldPath: "spec.parameters.region"
+          toFieldPath: "spec.forProvider.region"
+        - fromFieldPath: "spec.parameters.region"
+          toFieldPath: "spec.forProvider.availabilityZone"
+          transforms:
+            - type: string
+              string:
+                fmt: "%sa"
     - name: subnet-b
       base:
         apiVersion: ec2.aws.crossplane.io/v1beta1
@@ -50,6 +68,21 @@ spec:
             vpcIdSelector:
               matchControllerRef: true
             availabilityZone: eu-west-1b
+      patches:
+        - fromFieldPath: "spec.parameters.region"
+          toFieldPath: "metadata.labels[zone]"
+          transforms:
+            - type: string
+              string:
+                fmt: "%sb"
+        - fromFieldPath: "spec.parameters.region"
+          toFieldPath: "spec.forProvider.region"
+        - fromFieldPath: "spec.parameters.region"
+          toFieldPath: "spec.forProvider.availabilityZone"
+          transforms:
+            - type: string
+              string:
+                fmt: "%sb"
     - name: subnet-c
       base:
         apiVersion: ec2.aws.crossplane.io/v1beta1
@@ -64,6 +97,21 @@ spec:
             vpcIdSelector:
               matchControllerRef: true
             availabilityZone: eu-west-1c
+      patches:
+        - fromFieldPath: "spec.parameters.region"
+          toFieldPath: "metadata.labels[zone]"
+          transforms:
+            - type: string
+              string:
+                fmt: "%sc"
+        - fromFieldPath: "spec.parameters.region"
+          toFieldPath: "spec.forProvider.region"
+        - fromFieldPath: "spec.parameters.region"
+          toFieldPath: "spec.forProvider.availabilityZone"
+          transforms:
+            - type: string
+              string:
+                fmt: "%sc"
     - name: dbsubnetgroup
       base:
         apiVersion: database.aws.crossplane.io/v1beta1
@@ -74,6 +122,9 @@ spec:
             description: An excellent formation of subnetworks.
             subnetIdSelector:
               matchControllerRef: true
+      patches:
+        - fromFieldPath: "spec.parameters.region"
+          toFieldPath: "spec.forProvider.region"
     - name: internetgateway
       base:
         apiVersion: ec2.aws.crossplane.io/v1beta1
@@ -83,6 +134,9 @@ spec:
             region: eu-west-1
             vpcIdSelector:
               matchControllerRef: true
+      patches:
+        - fromFieldPath: "spec.parameters.region"
+          toFieldPath: "spec.forProvider.region"
     - name: routetable
       base:
         apiVersion: ec2.aws.crossplane.io/v1beta1
@@ -106,6 +160,27 @@ spec:
               - subnetIdSelector:
                   matchLabels:
                     zone: eu-west-1c
+      patches:
+        - fromFieldPath: "spec.parameters.region"
+          toFieldPath: "spec.forProvider.region"
+        - fromFieldPath: "spec.parameters.region"
+          toFieldPath: "spec.forProvider.associations[0].subnetIdSelector.matchLabels[zone]"
+          transforms:
+            - type: string
+              string:
+                fmt: "%sa"
+        - fromFieldPath: "spec.parameters.region"
+          toFieldPath: "spec.forProvider.associations[1].subnetIdSelector.matchLabels[zone]"          
+          transforms:
+            - type: string
+              string:
+                fmt: "%sb"
+        - fromFieldPath: "spec.parameters.region"
+          toFieldPath: "spec.forProvider.associations[2].subnetIdSelector.matchLabels[zone]"
+          transforms:
+            - type: string
+              string:
+                fmt: "%sc"
     - name: securitygroup
       base:
         apiVersion: ec2.aws.crossplane.io/v1beta1
@@ -124,6 +199,9 @@ spec:
                 ipRanges:
                   - cidrIp: 0.0.0.0/0
                     description: Everywhere
+      patches:
+        - fromFieldPath: "spec.parameters.region"
+          toFieldPath: "spec.forProvider.region"
     - name: rdsinstance
       base:
         apiVersion: database.aws.crossplane.io/v1beta1
@@ -152,6 +230,8 @@ spec:
                 fmt: "%s-postgresql"
         - fromFieldPath: "spec.parameters.storageGB"
           toFieldPath: "spec.forProvider.allocatedStorage"
+        - fromFieldPath: "spec.parameters.region"
+          toFieldPath: "spec.forProvider.region"
       connectionDetails:
         - fromConnectionSecretKey: username
         - fromConnectionSecretKey: password
